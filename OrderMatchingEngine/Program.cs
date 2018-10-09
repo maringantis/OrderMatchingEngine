@@ -4,6 +4,13 @@
     using System.IO;
     using System.Linq;
 
+
+    public struct order_table
+    {
+        public int order_quantity { set; get; }
+        public int order_price { set; get; }
+    }   
+
     class Solution
     {
 
@@ -19,11 +26,13 @@
         //enumerator list for the type of operations
         internal enum operation_type { BUY, SELL, CANCEL, MODIFY, PRINT, INV };
 
-        internal static Dictionary<string, Dictionary<int, int>> buyTable = new Dictionary<string, Dictionary<int, int>>();
-        internal static Dictionary<int, int> buyOrderTable = new Dictionary<int, int>();
+        internal static Dictionary<string, order_table> buyTable = new Dictionary<string, order_table>();
+        //internal static Dictionary<int, int> buyOrderTable = new Dictionary<int, int>();
+        internal static Dictionary<int, int> printBuyOrderTable = new Dictionary<int, int>();
 
-        internal static Dictionary<string, Dictionary<int, int>> sellTable = new Dictionary<string, Dictionary<int, int>>();
-        internal static Dictionary<int, int> sellOrderTable = new Dictionary<int, int>(); 
+        //internal static Dictionary<string, Dictionary<int, int>> sellTable = new Dictionary<string, Dictionary<int, int>>();
+        internal static Dictionary<string, order_table> sellTable = new Dictionary<string, order_table>();
+        internal static Dictionary<int, int> printSellOrderTable = new Dictionary<int, int>(); 
     
 
 
@@ -53,118 +62,145 @@
             foreach (var line in stdInput)
             {
                 stdInputArgumentsArray = line.Split(null);
+                order_table _orderTable = new order_table();
+
                 //Checks if the Trade statement is right
                 if (isValidTrade(stdInputArgumentsArray[0], stdInputArgumentsArray))
-                {
-                    switch (stdInputArgumentsArray[0])
                     {
-                        case BUY_LABEL:
-                            {
+                        switch (stdInputArgumentsArray[0])
+                        {
+                            case BUY_LABEL:
+                                {
                                 //BUY Operation logic
-
-                                if (getOrderType(stdInputArgumentsArray[1]).Equals(order_type.GFD))
-                                {
-                                    //GFD Operation
-                                    // Console.WriteLine("BUY GFD");
-                                    try
+                           
+                                    if (getOrderType(stdInputArgumentsArray[1]).Equals(order_type.GFD))
                                     {
-                                        buyOrderTable.Add(Convert.ToInt32(stdInputArgumentsArray[2]),
-                                            Convert.ToInt32(stdInputArgumentsArray[3]));
+                                        //GFD Operation
+                                        // Console.WriteLine("BUY GFD");
+                                        try
+                                        {
+                                        //buyOrderTable.Add(Convert.ToInt32(stdInputArgumentsArray[2]),
+                                        //    Convert.ToInt32(stdInputArgumentsArray[3]));
+                                            _orderTable.order_price = Convert.ToInt32(stdInputArgumentsArray[2]); ;
+                                            _orderTable.order_quantity =  Convert.ToInt32(stdInputArgumentsArray[3]);
+                                            buyTable.Add((stdInputArgumentsArray[4]), _orderTable);
 
-                                        buyTable.Add((stdInputArgumentsArray[4]), buyOrderTable);
+                                  
+                                        }
+                                        catch
+                                        {
+                                             Console.WriteLine("Repeated?");
+                                            //buyOrderTable[Convert.ToInt32(stdInputArgumentsArray[2])] +=
+                                              //  Convert.ToInt32(stdInputArgumentsArray[3]);
+                                        }
+
                                     }
-                                    catch
+                                    else if ((getOrderType(stdInputArgumentsArray[1]).Equals(order_type.IOC)))
                                     {
-                                        // Console.WriteLine("Repeated?");
-                                        buyOrderTable[Convert.ToInt32(stdInputArgumentsArray[2])] +=
-                                            Convert.ToInt32(stdInputArgumentsArray[3]);
+                                        //IOC Operation
+
+                                        // Console.WriteLine("BUY IOC");
+
+                                    }
+                                    else
+                                    {
+                                        //Invlaid operation
+                                        return;
                                     }
 
+
+                                    break;
                                 }
-                                else if ((getOrderType(stdInputArgumentsArray[1]).Equals(order_type.IOC)))
+                            case SELL_LABEL:
                                 {
-                                    //IOC Operation
+                                    //SELL Operation logic
 
-                                    // Console.WriteLine("BUY IOC");
+                                    if (getOrderType(stdInputArgumentsArray[1]).Equals(order_type.GFD))
+                                    {
+                                        //GFD Operation
+                                        // Console.WriteLine("SELL GFD");
+                                        try
+                                        {
+                                            _orderTable.order_price = Convert.ToInt32(stdInputArgumentsArray[2]); ;
+                                            _orderTable.order_quantity = Convert.ToInt32(stdInputArgumentsArray[3]);
+                                            sellTable.Add((stdInputArgumentsArray[4]), _orderTable);
 
-                                }
-                                else
-                                {
-                                    //Invlaid operation
-                                    return;
-                                }
 
+                                        }
+                                        catch
+                                        {
+                                            Console.WriteLine("Repeated?");
+                                            //buyOrderTable[Convert.ToInt32(stdInputArgumentsArray[2])] +=
+                                            //  Convert.ToInt32(stdInputArgumentsArray[3]);
+                                        }
 
-                                break;
                             }
-                        case SELL_LABEL:
-                            {
-                                //SELL Operation logic
-
-                                if (getOrderType(stdInputArgumentsArray[1]).Equals(order_type.GFD))
-                                {
-                                    //GFD Operation
-                                    // Console.WriteLine("SELL GFD");
-                                    try
+                                    else if ((getOrderType(stdInputArgumentsArray[1]).Equals(order_type.IOC)))
                                     {
-                                        sellOrderTable.Add(Convert.ToInt32(stdInputArgumentsArray[2]),
-                                            Convert.ToInt32(stdInputArgumentsArray[3]));
+                                        //IOC Operation
 
-                                        sellTable.Add((stdInputArgumentsArray[4]), sellOrderTable);
+                                        // Console.WriteLine("BUY IOC");
+
                                     }
-                                    catch
+                                    else
                                     {
-                                        Console.WriteLine("Repeated?");
-                                        sellOrderTable[Convert.ToInt32(stdInputArgumentsArray[2])] +=
-                                            Convert.ToInt32(stdInputArgumentsArray[3]);
+                                        //Invlaid operation
+                                        return;
                                     }
 
+
+                                    break;
                                 }
-                                else if ((getOrderType(stdInputArgumentsArray[1]).Equals(order_type.IOC)))
+                            case CANCEL_LABEL:
                                 {
-                                    //IOC Operation
-
-                                    // Console.WriteLine("BUY IOC");
-
-                                }
-                                else
-                                {
-                                    //Invlaid operation
-                                    return;
-                                }
-
-
-                                break;
-                            }
-                        case CANCEL_LABEL:
-                            {
                                 //CANCEL Operation logic
-                               // Console.WriteLine("removing entry" + stdInputArgumentsArray[1]);
-                                if (sellTable.ContainsKey(stdInputArgumentsArray[1])) sellTable.Remove(stdInputArgumentsArray[1]);
-                                else if (buyTable.ContainsKey(stdInputArgumentsArray[1])) buyTable.Remove(stdInputArgumentsArray[1]);
-                                //else return;
-                                break;
-                            }
-                        case MODIFY_LABEL:
-                            {
-                                //MODIFY Operation logic
-                                break;
-                            }
-                   
-                        default:
-                            break;
+                                // Console.WriteLine("removing entry" + stdInputArgumentsArray[1]);
+                                if (sellTable.ContainsKey(stdInputArgumentsArray[1]))
+                                {
+                                    try
+                                    {
+                                        var tempQuantity = sellTable[stdInputArgumentsArray[1]].order_quantity;
+                                        var tempPrice = sellTable[stdInputArgumentsArray[1]].order_price;
+                                        printSellOrderTable[tempPrice] -= tempQuantity;
+                                        sellTable.Remove(stdInputArgumentsArray[1]);
+                                    }
+                                    catch { sellTable.Remove(stdInputArgumentsArray[1]); }
 
+                                }
+                                else if (buyTable.ContainsKey(stdInputArgumentsArray[1]))
+                                {
+                                    try
+                                    {
+                                        var tempQuantity = buyTable[stdInputArgumentsArray[1]].order_quantity;
+                                        var tempPrice = buyTable[stdInputArgumentsArray[1]].order_price;
+                                        printBuyOrderTable[tempPrice] -= tempQuantity;
+                                        buyTable.Remove(stdInputArgumentsArray[1]);
+                                    }
+                                    catch { buyTable.Remove(stdInputArgumentsArray[1]); }
+                                }
+                                    //else return;
+                                break;
+                                }
+                            case MODIFY_LABEL:
+                                {
+                                    //MODIFY Operation logic
+                                    break;
+                                }
+                   
+                            default:
+                                break;
+
+                        }
                     }
+
                 }
 
-            }
+                if (stdInputArgumentsArray[0].Equals(PRINT_LABEL))
+                {
 
-            if (stdInputArgumentsArray[0].Equals(PRINT_LABEL))
-            {
-
-                printOperation();
+                    printOperation();
             
-            }
+                }
 
 
                 Console.ReadKey();
@@ -176,30 +212,52 @@
         {
             //PRINT Operation logic
             //Printing Sell operations
+            generatePrintTable();
+            
             Console.WriteLine("SELL:");
-            foreach (var kvp1 in sellOrderTable.Reverse())
+            foreach (var kvp1 in printSellOrderTable.Reverse())
             {
+
                 //Console.WriteLine("Order ID = {0}", kvp1.Key);
-               // foreach (var kvp2 in kvp1.Value)
-                {
-                    Console.WriteLine(kvp1.Key + " " + kvp1.Value);
-                    //Console.WriteLine("Order Price = {0}, Order Quanty = {1}", kvp2.Key, kvp2.Value);
-                }
-                //break;
+                Console.WriteLine(kvp1.Key + " " + kvp1.Value);
             }
             //Printing BUY operations
             Console.WriteLine("BUY:");
-            foreach (var kvp1 in buyOrderTable.Reverse())
+            foreach (var kvp1 in printBuyOrderTable.Reverse())
             {
                 //Console.WriteLine("Order ID = {0}", kvp1.Key);
-                //foreach (var kvp2 in kvp1.Value)
-                {
-                    Console.WriteLine(kvp1.Key + " " + kvp1.Value);
-                    //Console.WriteLine("Order Price = {0}, Order Quanty = {1}", kvp2.Key, kvp2.Value);
-                }
-                //break;
+                Console.WriteLine(kvp1.Key + " " + kvp1.Value);
             }
+            
         }
+
+    static void generatePrintTable()
+        {
+            foreach (var kvp1 in sellTable)
+            {
+                try
+                {
+                    printSellOrderTable.Add(kvp1.Value.order_price, kvp1.Value.order_quantity);
+                }
+                catch
+                {
+                    printSellOrderTable[kvp1.Value.order_price] += kvp1.Value.order_quantity;
+                }
+            }
+
+            foreach (var kvp1 in buyTable)
+            {
+                try
+                {
+                    printBuyOrderTable.Add(kvp1.Value.order_price, kvp1.Value.order_quantity);
+                }
+                catch
+                {
+                    printBuyOrderTable[kvp1.Value.order_price] += kvp1.Value.order_quantity;
+                }
+            }
+
+    }
 
         static order_type getOrderType(string current_order)
         {
